@@ -3,5 +3,5 @@ package parse;
 import java.util.ArrayList;
 
 interface CombineStrategy {
-	ArrayList<Dvojica> combine(Titulky t1, Titulky t2);
+	ArrayList<Pair> combine(Titles t1, Titles t2);
 }

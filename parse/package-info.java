@@ -1,8 +1,4 @@
 /**
  * 
  */
-/**
- * @author alenka
- *
- */
 package parse;
