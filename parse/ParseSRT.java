@@ -6,12 +6,12 @@ import java.util.ArrayList;
 class ParseSRT implements ParseStrategy {
 
 	@Override
-	public ArrayList<Sentence> parseFile(String meno_suboru) {
-		ArrayList<Sentence> repliky = new ArrayList<>();
+	public ArrayList<Sentence> parseFile(String fileName) {
+		ArrayList<Sentence> sentences = new ArrayList<>();
 		BufferedReader in = null;
 
 		try {
-			in = new BufferedReader(new FileReader("subs/" + meno_suboru));
+			in = new BufferedReader(new FileReader("subs/" + fileName));
 
 			while (true) {
 				String line;
@@ -34,14 +34,19 @@ class ParseSRT implements ParseStrategy {
 					line = in.readLine();
 					// skoncime, ked sa objavi prazdny riadok alebo ked prideme
 					// na koniec vstupu (null)
+					if (line.equals("") && text.length() == 0) {
+						line = in.readLine();
+					}
 					if (line == null || line.equals("")) {
 						break;
 					}
 					// System.out.println(line);
 					text.append(line);
+					text.append(" ");
 				}
 
-				repliky.add(new Sentence(serialNum, from, to, text.toString()));
+				sentences
+						.add(new Sentence(serialNum, from, to, text.toString()));
 
 			}
 		} catch (IOException e) {
@@ -54,7 +59,7 @@ class ParseSRT implements ParseStrategy {
 			}
 		}
 
-		return repliky;
+		return sentences;
 	}
 
 }

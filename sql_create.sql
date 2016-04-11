@@ -1,64 +1,65 @@
-DROP DATABASE IF EXISTS projekt;
+DROP DATABASE IF EXISTS project;
 
-CREATE DATABASE projekt;
-use projekt;
+CREATE DATABASE project;
+use project;
 
-CREATE TABLE Osoba (
+CREATE TABLE User (
 	id INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-	meno VARCHAR(30) NOT NULL,
-	heslo VARCHAR(30) NOT NULL
+	name VARCHAR(30) NOT NULL,
+	passw VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE Jazyk (
+CREATE TABLE Language (
 	id INTEGER,
-	nazov VARCHAR(30),
-	skratka VARCHAR(5)
+	name VARCHAR(30),
+	short VARCHAR(5)
 );
 
-CREATE TABLE Hovori (
-	osobaId INTEGER,
-	jazykId INTEGER
+CREATE TABLE Says (
+	userId INTEGER,
+	languageId INTEGER
 );
 
-CREATE TABLE Slovo (
+CREATE TABLE Word (
 	id INTEGER,
-	text VARCHAR(30)
+	languageId INTEGER,
+	text VARCHAR(30) /* dane slovo */
 	/* pocet_vyskytov INTEGER */
 );
 
-CREATE TABLE Pozna (
-	osobaId INTEGER,
-	slovoId INTEGER
+CREATE TABLE Knows (
+	userId INTEGER,
+	wordId INTEGER
 );
 
 CREATE TABLE Film (
 	id INTEGER,
 	/* zadal INTEGER, --meno ID zadavatela-osoby */
-	nazov VARCHAR(50)
+	name VARCHAR(50)
 );
 
-CREATE TABLE Titulky (
+CREATE TABLE Titles (
 	id INTEGER,
 	filmId INTEGER,
-	meno_suboru VARCHAR(50),
-	jazykId INTEGER
+	fileName VARCHAR(50),
+	languageId INTEGER
 );
 
-CREATE TABLE Replika (
+CREATE TABLE Sentence (
 	id INTEGER,
-	titulkyId INTEGER,
+	titlesId INTEGER,
 	poradove_cislo INTEGER,
-	casOd VARCHAR(30),
-	casDo VARCHAR(30),	/* '17:51:04,777' */
+	timeFrom VARCHAR(30),
+	timeTo VARCHAR(30),	/* '17:51:04,777' */
 	text TEXT
 );
 
-CREATE TABLE Obsahuje (
-	slovoId INTEGER,
-	replikaId INTEGER
+CREATE TABLE Contains (
+	wordId INTEGER,
+	sentenceId INTEGER
 );
 
-CREATE TABLE Dvojica (
-	replika1 INTEGER,
-	replika2 INTEGER
+CREATE TABLE Pair (
+	sentence1 INTEGER,
+	sentence2 INTEGER
 );

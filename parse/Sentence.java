@@ -1,5 +1,6 @@
 package parse;
 
+/*tu sa pod sentence mysli jedna replika: cislo, cas zobrazenia a jej text*/
 class Sentence {
 	int serialNum;
 	String from;
@@ -11,7 +12,23 @@ class Sentence {
 		serialNum = _serialNum;
 		from = _from;
 		to = _to;
-		text = _text;
+		text = correctText(_text);
+	}
+
+	// stringy su obalene takymito " uvodzovkami,
+	// preto vsetko vnutri je len s takymito '
+	private String correctText(String text) {
+		StringBuffer sb = new StringBuffer("");
+
+		for (int i = 0; i < text.length(); i++) {
+			if (text.charAt(i) == '\"') {
+				sb.append('\'');
+			} else {
+				sb.append(text.charAt(i));
+			}
+		}
+
+		return sb.toString();
 	}
 
 	// vypis
@@ -28,4 +45,5 @@ class Sentence {
 
 		return sb.toString();
 	}
+
 }

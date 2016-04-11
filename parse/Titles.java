@@ -3,11 +3,11 @@ package parse;
 import java.util.ArrayList;
 
 class Titles {
-	int titulkyId;
+	int titlesId;
 	int filmId;
-	ArrayList<Sentence> repliky;
-	String meno_suboru;
-	String jazyk;
+	ArrayList<Sentence> sentences;
+	String fileName;
+	int language;
 
 	// konstruktor
 	Titles() {
