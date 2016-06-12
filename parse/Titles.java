@@ -1,11 +1,11 @@
 package parse;
 
-import java.util.ArrayList;
+import java.util.*;
 
 class Titles {
 	int titlesId;
 	int filmId;
-	ArrayList<Sentence> sentences;
+	List<Sentence> sentences;
 	String fileName;
 	int language;
 

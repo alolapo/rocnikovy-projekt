@@ -6,7 +6,7 @@ use project;
 CREATE TABLE User (
 	id INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	name VARCHAR(30) NOT NULL,
-	passw VARCHAR(30) NOT NULL
+	pasw VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE Language (
@@ -63,3 +63,15 @@ CREATE TABLE Pair (
 	sentence1 INTEGER,
 	sentence2 INTEGER
 );
+
+CREATE TABLE Combined (
+	titles1 INTEGER,
+	titles2 INTEGER
+);
+
+INSERT INTO User VALUES (1, "meno", "heslo");
+INSERT INTO Language VALUES (1, "slovensky", "sk"), (2, "cesky", "cz"), (3, "english", "en");
+INSERT INTO Knows VALUES (1, 1), (1, 2);
+
+INSERT INTO Film VALUES (1, "Dirty dancing");
+INSERT INTO Titles VALUES (1, 1, "dirty.dancing-cze.srt", 2), (2, 1, "dirty-dancing-english.srt", 3);

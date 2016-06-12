@@ -1,7 +1,7 @@
 package parse;
 
-import java.util.ArrayList;
+import java.util.*;
 
 interface CombineStrategy {
-	ArrayList<Pair> combine(Titles t1, int offset1, Titles t2, int offset2);
+	List<Pair> combine(Titles t1, int offset1, Titles t2, int offset2);
 }

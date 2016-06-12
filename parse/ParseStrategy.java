@@ -1,7 +1,7 @@
 package parse;
 
-import java.util.ArrayList;
+import java.util.*;
 
 interface ParseStrategy {
-	ArrayList<Sentence> parseFile(String fileName);
+	List<Sentence> parseFile(String fileName);
 }

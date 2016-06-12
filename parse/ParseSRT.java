@@ -1,13 +1,13 @@
 package parse;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 
 class ParseSRT implements ParseStrategy {
 
 	@Override
-	public ArrayList<Sentence> parseFile(String fileName) {
-		ArrayList<Sentence> sentences = new ArrayList<>();
+	public List<Sentence> parseFile(String fileName) {
+		List<Sentence> sentences = new ArrayList<>();
 		BufferedReader in = null;
 
 		try {

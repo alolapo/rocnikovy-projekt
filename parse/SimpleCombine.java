@@ -1,11 +1,11 @@
 package parse;
 
-import java.util.ArrayList;
+import java.util.*;
 
 class SimpleCombine implements CombineStrategy {
 
 	@Override
-	public ArrayList<Pair> combine(Titles t1, int offset1, Titles t2,
+	public List<Pair> combine(Titles t1, int offset1, Titles t2,
 			int offset2) {
 		ArrayList<Pair> tuples = new ArrayList<>();
 

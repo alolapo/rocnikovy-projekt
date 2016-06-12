@@ -1,6 +1,6 @@
 package parse;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Main {
 
@@ -8,16 +8,20 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// TODO cases
 		// titulky budu nacitane z db, zatial natvrdo vytvorene
 		Titles t1 = new Titles();
 		t1.fileName = "dirty.dancing-cze.srt";
-		t1.language = 1; // teraz CZ
+		t1.language = 2; // teraz CZ
+		t1.titlesId = 1;
 
 		Titles t2 = new Titles();
 		t2.fileName = "dirty-dancing-english.srt";
-		t2.language = 2; // teraz EN
+		t2.language = 3; // teraz EN
+		t2.titlesId = 2;
 
 		MySQLsaver saver = new MySQLsaver();
+		saver.createConnection();
 		// teraz natvrdo SRT, casom akysi case
 		ParseStrategy parse = new ParseSRT();
 
@@ -26,24 +30,26 @@ public class Main {
 		int offset1 = saver.saveSentences(t1.sentences, t1.titlesId);
 		// ak je offset -1, neulozilo sa to spravne
 		System.out.println(offset1);
-		saver.saveWords(t1.sentences, t1.language);
+		saver.saveWords(t1.sentences, offset1, t1.language);
 
 		t2.sentences = parse.parseFile(t2.fileName);
 		// System.out.println(t2.sentences.get(6).toString());
 		int offset2 = saver.saveSentences(t2.sentences, t2.titlesId);
 		// ak je offset -1, neulozilo sa to spravne
 		System.out.println(offset2);
-		saver.saveWords(t2.sentences, t2.language);
+		saver.saveWords(t2.sentences, offset2, t2.language);
 
 		// teraz natvrdo simple- teda podla cisel
 		CombineStrategy combine = new SimpleCombine();
 
-		ArrayList<Pair> tuples = combine.combine(t1, offset1, t2, offset2);
+		List<Pair> tuples = combine.combine(t1, offset1, t2, offset2);
 		saver.saveTuples(tuples);
-		/*
-		 * System.out.println(t1.sentences.get(tuples.get(40).sentence1).text);
-		 * System.out.println(t2.sentences.get(tuples.get(40).sentence2).text);
-		 */
+		saver.saveCombined(t1.titlesId, t2.titlesId);
+		
+		System.out.println();
+		System.out.println(t1.sentences.get(tuples.get(40).sentence1).text);
+		System.out.println(t2.sentences.get(tuples.get(40).sentence2).text);
+		
 
 		/*
 		 * tu treba ulozit vsetky info do db: titulky → t1, t2 Replika →
@@ -51,7 +57,18 @@ public class Main {
 		 * nikde nemam spracovane
 		 */
 
-		saver.save();
+		saver.closeConnection();
+		
+		/*
+		System.out.println(saver.simplify("ahoj"));
+		System.out.println(saver.simplify("Bábovka"));
+		System.out.println(saver.simplify("prečo?"));
+		System.out.println(saver.simplify("!"));
+		System.out.println(saver.simplify("."));
+		System.out.println(saver.simplify("?"));
+		System.out.println(saver.simplify("\'"));
+		System.out.println("A = "+'A'+"\nZ = "+ 'Z'+"\na = "+'a'+"\nz = "+'z');
+		*/
 	}
 
 }
