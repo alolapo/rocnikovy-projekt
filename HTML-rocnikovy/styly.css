@@ -1,0 +1,109 @@
+* {
+	margin : 0px;
+	padding : 0px;
+}
+
+html {
+	background-color: #ffffcc;
+}
+
+body {
+	margin: 0 100px;
+	padding: 25px 50px 25px 45px;
+	background-color: #993300;
+	color: #4d2600;
+}
+
+section {
+	color: #4d2600;
+}
+
+button, input, select, a {
+	font-size: inherit;
+	color: #4d2600;
+}
+
+a {
+	text-decoration: none;
+	margin: 0 10px;
+}
+
+header {
+	position: fixed;
+	color: #993300;
+	transform: rotate(-90deg);
+	left: 10px;
+	top: 100px;
+}
+
+.shadowbox {
+	padding:25px;
+	margin: 25px 0; /*toto robi skaredy zaciatok a koniec*/
+	
+	border-width: 0 10px 10px 0;
+	border-style: solid;
+	border-color: #4d2600;
+	border-radius: 25px;
+	
+/*	box-shadow: 10px 10px #4d2600;*/
+    background-color: #ffffcc;
+    overflow: auto;
+}
+
+input {
+	border-width: 0 2px 2px 0;
+	border-style: solid;
+	border-color: #4d2600;
+	border-radius: 8px;
+	padding: 2px;
+	margin: 1px;
+}
+
+h2 {
+	color:#ffffcc;
+	text-shadow: 4px 4px #4d2600;
+}
+
+.zobrazTabulku {
+	width: 50%;
+	float: left;
+}
+
+.zobrazSlovo {
+	width: 45%;
+	float: right;
+/*	color: #993300;*/
+}
+
+.zobrazSlovo div {
+	overflow: auto;
+	width: 100%;
+	padding-bottom: 30px;
+	font-size: 100%;
+}
+
+.zobrazSlovo div h3 {
+	float: left;
+}
+.zobrazSlovo div button {
+	float: left;
+}
+
+.zobrazSlovo div p {
+	float: left;
+}
+
+table, th, td {
+	//overflow nastav na 1 riadok s 3 bodkami
+	border-width: 2px;
+	border-color: #993300;
+	border-style: solid;
+}
+
+table {
+	width: 100%;
+}
+
+#logout, #konto {
+	display: none;
+}

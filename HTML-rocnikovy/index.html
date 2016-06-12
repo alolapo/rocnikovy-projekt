@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Titulkáreň</title>
+<link href="styly.css" rel="stylesheet">
+</head>
+
+<body>
+
+<script type="text/javascript" src="funkcie.js"></script>
+
+<nav class="shadowbox">
+<a href="">domov</a> 
+<a href="">registrácia/prihlásenie</a> 
+<a href="">pridať titulky</a> 
+<a href="">chcem sa učiť</a> 
+<a href="">moje konto</a>
+</nav>
+
+<header>
+<h1>Titulkáreň</h1>
+</header>
+
+<section>
+	<h2>Domov</h2>
+	<div class="shadowbox">
+	<p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+	</div>
+</section>
+
+<section>
+	<h2>Registrácia/Prihlásenie</h2>
+	<div class="shadowbox">
+	<form id="login">
+		<fieldset>
+			<legend>Prihlásenie</legend>
+			<!-- TODO odstranit value -->
+			<label>Meno:<input type="text" id="name" required value="meno"></label><br>
+			<label>Heslo:<input type="password" id="passw" required value="heslo"></label><br>
+			<button type="button" onclick="login()">Prihlásiť</button>
+		</fieldset>
+	</form>
+
+	<form id="register">
+		<fieldset>
+			<legend>Registrácia</legend>
+			<label>Meno:<input type="text" id="regName" required></label><br>
+			<label>Heslo:<input type="password" id="regPassw" required></label><br>
+			<label>Kontrola hesla:<input type="password" id="regPassw2" required></label><br>
+			<button type="button" onclick="register()">Registrovať</button>
+		</fieldset>
+	</form>
+
+	<form id="logout">
+		<fieldset>
+			<legend>Odhlásenie</legend>
+			Ste prihlásený s menom <em id="loggedAs">Karol</em>. Chcete sa odhlásiť?
+			<button type="button" onclick="logout()">Odhlásiť</button>
+		</fieldset>
+	</form>
+	</div>
+</section>
+
+<section id="konto">
+	<h2>Moje konto</h2>
+	<div class="shadowbox">
+	
+	<form method="post" name="actualize">
+	<fieldset>
+		<label>Nové heslo:<input type="password" id="chgPassw" required></label><br>
+		<label>Kontrola hesla:<input type="password" id="chgPassw2" required></label><br>
+		<button type="button" onclick="changePassw()">Zmeniť heslo</button>
+	</fieldset>
+
+	<fieldset>
+		<legend>Poznám jazyky:</legend>
+		<div id="languages">
+		</div>
+		<button type="button" onclick="changeLanguages()">Potvrdiť aktuálne jazyky</button>
+	</fieldset>
+	</form>
+	</div>
+</section>
+
+<section>
+	<h2>Nahranie nových tituliek</h2>
+	<div class="shadowbox">
+	
+	<form method="post" name="newTitles" enctype="multipart/form-data">
+	<fieldset>
+		<label>názov filmu: <input type="text" name="filmName"></label>
+		<input type="file" name="fileToUpload" id="fileToUpload">
+<!-- http://www.w3schools.com/php/php_file_upload.asp -->
+		<select name="jazyk">
+		  <option value="SK">slovenčina</option>
+		  <option value="CZ">čeština</option>
+		  <option value="EN">angličtina</option>
+		</select>
+		<input type="submit" value="Nahraj">
+	</fieldset>
+	</form>
+	</div>
+</section>
+
+<section>
+	<h2>Spáruj titulky</h2>
+	<div class="shadowbox">
+
+	<form method="post" name="makePair">
+	<fieldset>
+		<select name="titles1">
+		  <option value="title1">titulky 1</option>
+		  <option value="title2">titulky 2</option>
+		  <option value="title3">titulky 3</option>
+		</select>
+		<select name="titles2">
+		  <option value="title1">titulky 1</option>
+		  <option value="title2">titulky 2</option>
+		  <option value="title3">titulky 3</option>
+		</select>
+		<input type="submit" value="Spáruj">
+	</fieldset>
+	</form>
+	</div>
+</section>
+
+<section>
+	<h2>Chcem sa učiť</h2>
+	<div class="shadowbox">
+
+	<form method="post" name="learn">
+	<fieldset>
+		<div id="offer">
+		<select name="jazyk">
+		  <option value="SK">slovenčina</option>
+		  <option value="CZ">čeština</option>
+		  <option value="EN">angličtina</option>
+		</select>
+		<select name="titles1">
+		  <option value="title1">titulky 1</option>
+		  <option value="title2">titulky 2</option>
+		  <option value="title3">titulky 3</option>
+		</select>
+		<select name="titles2">
+		  <option value="none">nechcem</option>
+		  <option value="title1">titulky 1</option>
+		  <option value="title2">titulky 2</option>
+		  <option value="title3">titulky 3</option>
+		</select>
+		</div>
+		<button type="button" onclick="showMe()">Zobraz</button>
+	</fieldset>
+	</form>
+	</div>
+</section>
+
+<section>
+	<h2>Dirty Dancing</h2><!-- meno filmu -->
+	<div class="shadowbox">
+
+<!-- toto je zobrazenie slov, ktore este nepoznam -->
+	<div class="zobrazTabulku">
+	<table id="wordsTable">
+	<tr><!-- rows -->
+		<td>slovo</td>
+		<td>výskyt vo vete</td>
+		<td>už poznám</td>
+	</tr>
+	<tr>
+		<td>slovo1</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	<tr>
+		<td>slovo2</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	<tr>
+		<td>slovo3</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	<tr>
+		<td>slovo4</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	<tr>
+		<td>slovo5</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	<tr>
+		<td>slovo6</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	<tr>
+		<td>slovo7</td>
+		<td>výskyt vo vete</td>
+		<td><button>už poznám</button></td>
+	</tr>
+	</table>
+	</div>
+
+	<div class="zobrazSlovo">
+		<div>		
+			<h3>Slovo3</h3>
+			<button>už poznám</button>
+			<button>iný výskyt</button>
+		</div>
+		<div>
+			<button>&lt;&lt;</button>
+			<p>výskyt slova 3 vo vete v cudzom jazyku ktorý ešte nepoznám</p>
+			<button>&gt;&gt;</button>
+		</div>
+		<div>
+			<button>&lt;&lt;</button>
+			<p>výskyt slova 3 v pomocnej vete, ktorá tu môže a nemusí byť</p>
+			<button>&gt;&gt;</button>
+		</div>
+	</div>
+
+<!-- na konci, teda tu, chce byt este jedno take zobrazenie slov, ktore uz poznam, ale chcem si ich overit -->
+	</div>
+</section>
+
+
+
+<footer class="shadowbox">
+<p>vytvoril: <em>Alena Poláchová</em></p>
+</footer>
+
+</body>
+</html>
