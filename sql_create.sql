@@ -10,7 +10,7 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Language (
-	id INTEGER,
+	id INTEGER PRIMARY KEY,
 	name VARCHAR(30),
 	short VARCHAR(5)
 );
@@ -18,10 +18,11 @@ CREATE TABLE Language (
 CREATE TABLE Says (
 	userId INTEGER,
 	languageId INTEGER
+    /*, FOREIGN KEY (userId) REFERENCES User (id) */
 );
 
 CREATE TABLE Word (
-	id INTEGER,
+	id INTEGER PRIMARY KEY,
 	languageId INTEGER,
 	text VARCHAR(30) /* dane slovo */
 	/* pocet_vyskytov INTEGER */
@@ -33,20 +34,20 @@ CREATE TABLE Knows (
 );
 
 CREATE TABLE Film (
-	id INTEGER,
+	id INTEGER PRIMARY KEY,
 	/* zadal INTEGER, --meno ID zadavatela-osoby */
 	name VARCHAR(50)
 );
 
 CREATE TABLE Titles (
-	id INTEGER,
+	id INTEGER PRIMARY KEY,
 	filmId INTEGER,
 	fileName VARCHAR(50),
 	languageId INTEGER
 );
 
 CREATE TABLE Sentence (
-	id INTEGER,
+	id INTEGER PRIMARY KEY,
 	titlesId INTEGER,
 	poradove_cislo INTEGER,
 	timeFrom VARCHAR(30),

@@ -4,6 +4,7 @@ var filmId = 1;
 var filmName = "Dirty dancing";
 var titles1 = 3; // anglicky
 var titles2 = 2; // cesky
+//var titles2 = null;
 
 console.log("prilinkovany");
 //createOffer();
@@ -276,7 +277,13 @@ function fillTableFromJson(json){
 }
 
 function getTextOfSentence(id, word){
-	var objekt = {'type':'getTextOfSentence', 'id':id};
+	var objekt = {'type':'getTextOfSentence', 'id':id, 'secondLanguage': titles2};
+  if (titles2 != null){
+    objekt['secondLanguage'] = titles2;
+    document.getElementById('secondLanguage').style.display = "inline";
+  } else {
+    document.getElementById('secondLanguage').style.display = "none";
+  }
 
 	xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
@@ -290,6 +297,11 @@ function getTextOfSentence(id, word){
       // TODO spracuj json
       var td = document.getElementById(word);
       td.innerHTML = json['answer'];
+      document.getElementById('displayWord').innerHTML = word;
+      document.getElementById('newLanguageSentence').innerHTML = json['answer'];
+      if ( titles2 != null ){
+        document.getElementById('knownLanguageSentence').innerHTML = json['second'];
+      }
       
     }
   }
@@ -299,6 +311,27 @@ function getTextOfSentence(id, word){
   
   //var td = document.getElementById(word);
   //td.innerHTML = "nieco";
+}
+
+function giveMeSomething(){
+  var objekt = {'type':"something"};
+  xhr = new XMLHttpRequest();
+  var url = "http://localhost:4049";
+  var method = "POST";
+  xhr.open(method, url, true);
+  xhr.onreadystatechange = function () { 
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      var json = JSON.parse(xhr.responseText);
+      //console.log(json);
+      
+      // TODO spracuj json
+      var td = document.getElementById("someAnswer");
+      td.innerHTML = json['0']['col0']+" "+json['0']['col1']+" "+json['0']['col2'];
+    }
+  }
+
+  var data = JSON.stringify(objekt);
+  xhr.send(data);
 }
 
 function showLogged(){

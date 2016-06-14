@@ -84,6 +84,9 @@ handlePost(HttpRequest req) async {
       case 'getTextOfSentence':
         await getTextOfSentence(req, jsonData);
         break;
+      case 'something':
+        await something(req, jsonData);
+        break;
       default:
         await printTable(req, jsonData);
         break;
@@ -330,7 +333,6 @@ Future createOffer(HttpRequest req, Map jsonData) async {
   } else {
     object['answer'] = "no";
   }
-
   res.write(JSON.encode(object));
   res.close();
 */
@@ -341,7 +343,6 @@ Future createOffer(HttpRequest req, Map jsonData) async {
 SELECT Word.id, Word.text FROM Contains, Word WHERE Contains.wordId=Word.id AND Word.languageId=3 AND NOT EXISTS (SELECT * FROM Knows WHERE Knows.userId=1 AND Knows.wordId=Word.id) GROUP BY Word.id, Word.text ORDER BY COUNT(Contains.sentenceId) DESC LIMIT 30;
 dva stlpce - id slova a text slova, zoradene podla poctu vyskytov
 - mozno treba pridat ku kazdemu slovu v db ze v akom filme je
-
  */
 
 Future showMe(HttpRequest req, Map jsonData) async {
@@ -399,6 +400,24 @@ Future getTextOfSentence(HttpRequest req, Map jsonData) async {
   Map object = new Map();
   object['answer'] = '"'+answer['0']["col0"].toString()+'"';
   print("object['answer']= ${object['answer']}");
+
+  if (jsonData.containsKey('secondLanguage')){
+    int titlesId = jsonData['secondLanguage'];
+
+    //       SELECT Sentence.text FROM Pair, Sentence WHERE (((Pair.sentence2=Sentence.id AND Pair.sentence1=762) OR (Pair.sentence1=Sentence.id AND Pair.sentence2=762)) AND (Sentence.titlesId=1));
+    query = "SELECT Sentence.text FROM Pair, Sentence WHERE (((Pair.sentence2=Sentence.id AND Pair.sentence1="
+        +jsonData['id'].toString()
+        +") OR (Pair.sentence1=Sentence.id AND Pair.sentence2="+jsonData['id'].toString()+")))";
+        //+")) AND (Sentence.titlesId="+jsonData['secondLanguage'].toString()+"))";
+    print(query);
+    Map answer = await dbConnect(query);
+    print("answer: ");
+    print(answer);
+    object['second'] = '"'+answer['0']["col0"].toString()+'"';
+
+    //object['second'] = "prelozena veta";
+  }
+
   print(object);
 
   res.write(JSON.encode(object));
@@ -443,7 +462,41 @@ Future dbConnect(String query) async {
   return data;
 }
 
+Future something(HttpRequest req, Map jsonData) async {
+  HttpResponse res = req.response;
+  addCorsHeaders(res);
 
+  var pool = new ConnectionPool(
+      host: 'localhost',
+      port: 3306,
+      user: "root",
+      password: null,
+      db: 'project',
+      max: 5);
+  print('connection created');
+
+  var query = await pool.prepare('SELECT * from User WHERE name=?');
+  var result = await query.execute(['meno']);
+
+  print(query.toString());
+
+  Map answer = new Map();
+  int index = 0;
+  await result.forEach( (row){
+    Map r = new Map();
+    for (int i = 0; i < row.length; i++){
+      r['col${i}'] = row[i];
+      print(row[i]);
+    }
+    answer.putIfAbsent('${index}', () => r);
+    index++;
+  });
+
+  print(answer);
+
+  res.write(JSON.encode(answer));
+  res.close();
+}
 
 /*
  * Encode/Decode functions for Dart

@@ -83,7 +83,7 @@
 	</div>
 </section>
 
-<section>
+<section id="noveTitulky">
 	<h2>Nahranie nových tituliek</h2>
 	<div class="shadowbox">
 	
@@ -103,7 +103,7 @@
 	</div>
 </section>
 
-<section>
+<section id="sparujTitulky">
 	<h2>Spáruj titulky</h2>
 	<div class="shadowbox">
 
@@ -162,7 +162,8 @@
 <!-- toto je zobrazenie slov, ktore este nepoznam -->
 	<div class="zobrazTabulku">
 	<table id="wordsTable">
-	<tr><!-- rows -->
+	
+	<tr>
 		<td>slovo</td>
 		<td>výskyt vo vete</td>
 		<td>už poznám</td>
@@ -182,43 +183,24 @@
 		<td>výskyt vo vete</td>
 		<td><button>už poznám</button></td>
 	</tr>
-	<tr>
-		<td>slovo4</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
-	<tr>
-		<td>slovo5</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
-	<tr>
-		<td>slovo6</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
-	<tr>
-		<td>slovo7</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
+	
 	</table>
 	</div>
 
 	<div class="zobrazSlovo">
 		<div>		
-			<h3>Slovo3</h3>
+			<h3 id="displayWord">Slovo3</h3>
 			<button>už poznám</button>
 			<button>iný výskyt</button>
 		</div>
 		<div>
 			<button>&lt;&lt;</button>
-			<p>výskyt slova 3 vo vete v cudzom jazyku ktorý ešte nepoznám</p>
+			<p id="newLanguageSentence">výskyt slova 3 vo vete v cudzom jazyku ktorý ešte nepoznám</p>
 			<button>&gt;&gt;</button>
 		</div>
-		<div>
+		<div id="secondLanguage">
 			<button>&lt;&lt;</button>
-			<p>výskyt slova 3 v pomocnej vete, ktorá tu môže a nemusí byť</p>
+			<p id="knownLanguageSentence">výskyt slova 3 v pomocnej vete, ktorá tu môže a nemusí byť</p>
 			<button>&gt;&gt;</button>
 		</div>
 	</div>
@@ -227,6 +209,18 @@
 	</div>
 </section>
 
+<section>
+	<h2>test inych queries do db</h2>
+	<div class="shadowbox">
+
+	<form method="post" name="learn">
+	<fieldset>
+		<button type="button" onclick="giveMeSomething()">Daj mi data</button>
+	</fieldset>
+	</form>
+	<p id="someAnswer"></p>
+	</div>
+</section>
 
 
 <footer class="shadowbox">

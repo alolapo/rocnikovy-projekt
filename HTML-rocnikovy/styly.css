@@ -104,6 +104,6 @@ table {
 	width: 100%;
 }
 
-#logout, #konto {
+#logout, #konto, #noveTitulky, #sparujTitulky {
 	display: none;
 }
