@@ -1,49 +1,55 @@
 DROP DATABASE IF EXISTS project;
 
+SET CHARACTER SET 'utf8';
+
 CREATE DATABASE project;
 use project;
 
 CREATE TABLE User (
-	id INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	id INTEGER AUTO_INCREMENT PRIMARY KEY,
 	name VARCHAR(30) NOT NULL,
 	pasw VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE Language (
 	id INTEGER PRIMARY KEY,
-	name VARCHAR(30),
-	short VARCHAR(5)
+	name VARCHAR(30) NOT NULL,
+	short VARCHAR(5) NOT NULL
 );
 
 CREATE TABLE Says (
-	userId INTEGER,
-	languageId INTEGER
-    /*, FOREIGN KEY (userId) REFERENCES User (id) */
+	userId INTEGER NOT NULL,
+	languageId INTEGER NOT NULL,
+    FOREIGN KEY (userId) REFERENCES User (id) ON DELETE CASCADE,
+    FOREIGN KEY (languageId) REFERENCES Language (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Word (
 	id INTEGER PRIMARY KEY,
 	languageId INTEGER,
-	text VARCHAR(30) /* dane slovo */
-	/* pocet_vyskytov INTEGER */
+	text VARCHAR(30), /* dane slovo */
+    FOREIGN KEY (languageId) REFERENCES Language (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Knows (
 	userId INTEGER,
-	wordId INTEGER
+	wordId INTEGER,
+	FOREIGN KEY (userId) REFERENCES User (id) ON DELETE CASCADE,
+	FOREIGN KEY (wordId) REFERENCES Word (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Film (
 	id INTEGER PRIMARY KEY,
-	/* zadal INTEGER, --meno ID zadavatela-osoby */
-	name VARCHAR(50)
+	name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Titles (
 	id INTEGER PRIMARY KEY,
 	filmId INTEGER,
-	fileName VARCHAR(50),
-	languageId INTEGER
+	fileName VARCHAR(50) NOT NULL,
+	languageId INTEGER NOT NULL,
+	FOREIGN KEY (filmId) REFERENCES Film (id) ON DELETE CASCADE,
+	FOREIGN KEY (languageId) REFERENCES Language (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Sentence (
@@ -52,27 +58,34 @@ CREATE TABLE Sentence (
 	poradove_cislo INTEGER,
 	timeFrom VARCHAR(30),
 	timeTo VARCHAR(30),	/* '17:51:04,777' */
-	text TEXT
+	text TEXT,
+	FOREIGN KEY (titlesId) REFERENCES Titles (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Contains (
-	wordId INTEGER,
-	sentenceId INTEGER
+	wordId INTEGER NOT NULL,
+	sentenceId INTEGER NOT NULL,
+	FOREIGN KEY (wordId) REFERENCES Word (id) ON DELETE CASCADE,
+	FOREIGN KEY (sentenceId) REFERENCES Sentence (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Pair (
-	sentence1 INTEGER,
-	sentence2 INTEGER
+	sentence1 INTEGER NOT NULL,
+	sentence2 INTEGER NOT NULL,
+	FOREIGN KEY (sentence1) REFERENCES Sentence (id) ON DELETE CASCADE,
+	FOREIGN KEY (sentence2) REFERENCES Sentence (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Combined (
-	titles1 INTEGER,
-	titles2 INTEGER
+	titles1 INTEGER NOT NULL,
+	titles2 INTEGER NOT NULL,
+	FOREIGN KEY (titles1) REFERENCES Titles (id) ON DELETE CASCADE,
+	FOREIGN KEY (titles2) REFERENCES Titles (id) ON DELETE CASCADE
 );
 
 INSERT INTO User VALUES (1, "meno", "heslo");
 INSERT INTO Language VALUES (1, "slovensky", "sk"), (2, "cesky", "cz"), (3, "english", "en");
-INSERT INTO Knows VALUES (1, 1), (1, 2);
+INSERT INTO Says VALUES (1, 1), (1, 2);
 
 INSERT INTO Film VALUES (1, "Dirty dancing");
 INSERT INTO Titles VALUES (1, 1, "dirty.dancing-cze.srt", 2), (2, 1, "dirty-dancing-english.srt", 3);

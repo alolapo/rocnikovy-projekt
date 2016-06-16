@@ -2,7 +2,10 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Titulkáreň</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script><title>Titulkáreň</title>
 <link href="styly.css" rel="stylesheet">
 </head>
 
@@ -25,11 +28,19 @@
 <section>
 	<h2>Domov</h2>
 	<div class="shadowbox">
-	<p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+		<p id="uvod">Vitajte na stránke, ktorá je určená na učenie cudzieho jazyka pomocou titulkov z filmov. Pre ďalšie aktivity je potrebné sa prihlásiť.</p>
+		<div id="navod">
+		<h3>Malý návod</h3><br>
+			<p>
+			Vitajte v Titulkárni. V sekcii "Chcem sa učiť" kliknite na tlačidlo "Zobraziť", 
+			ktoré vám ukáže niekoľko slov, ktoré možno ešte nepoznáte a nachádzajú sa v danom filme. Ak dané slovo poznáte, stlačte príslušné tlačidlo "už poznám", ktoré vám toto slovíčko pretane zobrazovať. Opakované stlačenie tlačidla "Zobraziť" nanovo zobrazí top 15 slovíčok, ktoré sa vám oplatí v danom filme poznať.<br>
+			Ak neviete, čo veta prislúchajúca slovu znamená, kliknite na ňu a v pravej časti obrazovky sa vám ukáže aj s prekladom. Ak chcete vedieť širší kontext, v ktorom sa slovo nachádza, posúvajte sa šípkami "&lt;&lt;" a "&gt;&gt;" v deji dozadu alebo dopredu. Ak chcete vidieť slovo v inom kontexte, vypýtajte si novú vetu stlačením tlačidla "ďalší výskyt".
+			</p>
+		</div>
 	</div>
 </section>
 
-<section>
+<section id="login/register">
 	<h2>Registrácia/Prihlásenie</h2>
 	<div class="shadowbox">
 	<form id="login">
@@ -38,7 +49,7 @@
 			<!-- TODO odstranit value -->
 			<label>Meno:<input type="text" id="name" required value="meno"></label><br>
 			<label>Heslo:<input type="password" id="passw" required value="heslo"></label><br>
-			<button type="button" onclick="login()">Prihlásiť</button>
+			<button type="button" class="btn btn-default" onclick="login()">Prihlásiť</button>
 		</fieldset>
 	</form>
 
@@ -48,38 +59,16 @@
 			<label>Meno:<input type="text" id="regName" required></label><br>
 			<label>Heslo:<input type="password" id="regPassw" required></label><br>
 			<label>Kontrola hesla:<input type="password" id="regPassw2" required></label><br>
-			<button type="button" onclick="register()">Registrovať</button>
-		</fieldset>
-	</form>
-
-	<form id="logout">
-		<fieldset>
-			<legend>Odhlásenie</legend>
-			Ste prihlásený s menom <em id="loggedAs">Karol</em>. Chcete sa odhlásiť?
-			<button type="button" onclick="logout()">Odhlásiť</button>
+			<button type="button" class="btn btn-default" onclick="register()">Registrovať</button>
 		</fieldset>
 	</form>
 	</div>
 </section>
 
-<section id="konto">
-	<h2>Moje konto</h2>
-	<div class="shadowbox">
-	
-	<form method="post" name="actualize">
-	<fieldset>
-		<label>Nové heslo:<input type="password" id="chgPassw" required></label><br>
-		<label>Kontrola hesla:<input type="password" id="chgPassw2" required></label><br>
-		<button type="button" onclick="changePassw()">Zmeniť heslo</button>
-	</fieldset>
-
-	<fieldset>
-		<legend>Poznám jazyky:</legend>
-		<div id="languages">
-		</div>
-		<button type="button" onclick="changeLanguages()">Potvrdiť aktuálne jazyky</button>
-	</fieldset>
-	</form>
+<section id="logout" class="shadowbox">
+	<div>
+		Vitajte <em id="loggedAs">Karol</em>. Chcete sa odhlásiť?
+		<button type="button" class="btn btn-default" onclick="logout()">Odhlásiť</button>
 	</div>
 </section>
 
@@ -125,13 +114,13 @@
 	</div>
 </section>
 
-<section>
+<section id="chcemSaUcit">
 	<h2>Chcem sa učiť</h2>
 	<div class="shadowbox">
 
 	<form method="post" name="learn">
 	<fieldset>
-		<div id="offer">
+		<div id="offer" style="display:none;">
 		<select name="jazyk">
 		  <option value="SK">slovenčina</option>
 		  <option value="CZ">čeština</option>
@@ -149,59 +138,40 @@
 		  <option value="title3">titulky 3</option>
 		</select>
 		</div>
-		<button type="button" onclick="showMe()">Zobraz</button>
+		<button type="button" class="btn btn-default" onclick="showMe()">Zobraziť</button>
 	</fieldset>
 	</form>
 	</div>
 </section>
 
-<section>
-	<h2>Dirty Dancing</h2><!-- meno filmu -->
+<section id="tabulkaSlovicok">
+	<h2 id="filmName">Dirty Dancing</h2><!-- meno filmu -->
 	<div class="shadowbox">
 
 <!-- toto je zobrazenie slov, ktore este nepoznam -->
 	<div class="zobrazTabulku">
 	<table id="wordsTable">
-	
-	<tr>
-		<td>slovo</td>
-		<td>výskyt vo vete</td>
-		<td>už poznám</td>
-	</tr>
-	<tr>
-		<td>slovo1</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
-	<tr>
-		<td>slovo2</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
-	<tr>
-		<td>slovo3</td>
-		<td>výskyt vo vete</td>
-		<td><button>už poznám</button></td>
-	</tr>
-	
+	<!-- tu dynamicky vkladam slova s ich vyskytom vo vetach -->
 	</table>
 	</div>
 
 	<div class="zobrazSlovo">
-		<div>		
-			<h3 id="displayWord">Slovo3</h3>
+		<div id="displayWord">		
+			<h3>Slovo3</h3>
 			<button>už poznám</button>
 			<button>iný výskyt</button>
 		</div>
 		<div>
-			<button>&lt;&lt;</button>
+			<button type="button" class="btn btn-default" onclick="prevSentenceOriginal()">&lt;&lt;</button>
+			<button type="button" class="btn btn-default" onclick="nextSentenceOriginal()">&gt;&gt;</button>
+			<br>
 			<p id="newLanguageSentence">výskyt slova 3 vo vete v cudzom jazyku ktorý ešte nepoznám</p>
-			<button>&gt;&gt;</button>
 		</div>
 		<div id="secondLanguage">
-			<button>&lt;&lt;</button>
+			<button type="button" class="btn btn-default" onclick="prevSentenceTranslate()">&lt;&lt;</button>
+			<button type="button" class="btn btn-default" onclick="nextSentenceTranslate()">&gt;&gt;</button>
+			<br>
 			<p id="knownLanguageSentence">výskyt slova 3 v pomocnej vete, ktorá tu môže a nemusí byť</p>
-			<button>&gt;&gt;</button>
 		</div>
 	</div>
 
@@ -209,22 +179,31 @@
 	</div>
 </section>
 
-<section>
-	<h2>test inych queries do db</h2>
+<section id="konto">
+	<h2>Moje konto</h2>
 	<div class="shadowbox">
-
-	<form method="post" name="learn">
+	
+	<form method="post" name="actualize">
 	<fieldset>
-		<button type="button" onclick="giveMeSomething()">Daj mi data</button>
+		<legend>Zmena hesla:</legend>
+		<label>Nové heslo:<input type="password" id="chgPassw" required></label><br>
+		<label>Kontrola hesla:<input type="password" id="chgPassw2" required></label><br>
+		<button type="button" class="btn btn-default" onclick="changePassw()">Zmeniť heslo</button>
+	</fieldset>
+
+	<fieldset>
+		<legend>Poznám jazyky:</legend>
+		<div id="languages">
+		</div>
+		<button type="button" class="btn btn-default" onclick="changeLanguages()">Potvrdiť aktuálne jazyky</button>
 	</fieldset>
 	</form>
-	<p id="someAnswer"></p>
 	</div>
 </section>
 
-
 <footer class="shadowbox">
-<p>vytvoril: <em>Alena Poláchová</em></p>
+<p>Ročníkový projekt 2016, Autor: <em>Alena Poláchová</em>, 
+Vedúci projektu: <em>RNDr. Ján Mazák, PhD</em></p>
 </footer>
 
 </body>

@@ -13,6 +13,11 @@ import 'dart:async';
 
 final HOST = InternetAddress.LOOPBACK_IP_V4;
 final PORT = 4049;
+ConnectionPool myPool = null;
+
+ConnectionPool get pool => myPool==null ? new ConnectionPool(
+    host: 'localhost', port: 3306, user: "root", password: null, db: 'project', max: 5)
+  : myPool;
 
 void main () {
   HttpServer.bind(HOST, PORT).then(gotMessage, onError: printError);
@@ -51,12 +56,9 @@ void addCorsHeaders(HttpResponse res) {
 }
 
 handlePost(HttpRequest req) async {
-
   try {
     var jsonString = await req.transform(UTF8.decoder).join();
     Map jsonData = JSON.decode(jsonString);
-    print("data:");
-    print(jsonData);
 
     // switch na jsonData['type']
     switch (jsonData['type']){
@@ -78,14 +80,17 @@ handlePost(HttpRequest req) async {
       case 'createOffer':
         await createOffer(req, jsonData);
         break;
-      case 'showMe':
-        await showMe(req, jsonData);
+      case 'showMeTable':
+        await showMeTable(req, jsonData);
         break;
       case 'getTextOfSentence':
         await getTextOfSentence(req, jsonData);
         break;
-      case 'something':
-        await something(req, jsonData);
+      case 'setAsKnown':
+        await setAsKnown(req, jsonData);
+        break;
+      case 'getSentence':
+        await getSentence(req, jsonData);
         break;
       default:
         await printTable(req, jsonData);
@@ -104,14 +109,24 @@ handlePost(HttpRequest req) async {
 Future printTable(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, String> answer = new Map();
 
-  String query = 'SELECT * from LANGUAGE WHERE userId="'+jsonData['name']+'"';
+  try{
+    var query = await pool.prepare('SELECT * from Usere WHERE name=?');
+    var result = await query.execute(['${jsonData['name']}']);
 
-  print(query);
-  Map answer = await dbConnect(query);
-  print(answer);
+    await result.forEach((row){
+      answer['answer'] = "yes";
+    });
 
-
+    answer.putIfAbsent('answer', () => "no");
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pipojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
+  }
 
   res.write(JSON.encode(answer));
   res.close();
@@ -120,169 +135,184 @@ Future printTable(HttpRequest req, Map jsonData) async {
 Future login(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, String> answer = new Map();
 
-  String query = "SELECT * FROM User WHERE name='"+jsonData['name']+"' AND pasw='"+jsonData['passw']+"'";
+  try {
+    var query = await pool.prepare('SELECT * FROM User WHERE (name=? AND pasw=?)');
+    var result = await query.execute(['${jsonData['name']}', '${jsonData['passw']}']);
 
-  print(query);
-  Map answer = await dbConnect(query);
-  print("answer: ");
-  print(answer);
+    await result.forEach( (row){
+      answer['userId'] = row.id;
+      answer['answer'] = "yes";
+      answer['info'] = "Vitaj v systeme.";
+    });
 
-  Map object = new Map();
-  if (answer.length == 1){
-    object['answer'] = "yes";
-    object['userId'] = answer["0"]["col0"];
-  } else {
-    object['answer'] = "no";
+    answer.putIfAbsent('answer', () => "no");
+    answer.putIfAbsent('info', () => "Niekde nastala chyba, nepoznam ta.");
+    print(answer);
+
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pipojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  res.write(JSON.encode(object));
+  res.write(JSON.encode(answer));
   res.close();
 }
 
 Future register(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, String> answer = new Map();
 
-  String query = "SELECT * FROM User WHERE name='"+jsonData['name']+"' AND pasw='"+jsonData['passw']+"'";
+  try{
+    var query = await pool.prepare('SELECT * FROM User WHERE (name=? AND pasw=?)');
+    var result = await query.execute(['${jsonData['name']}', '${jsonData['passw']}']);
 
-  print(query);
-  Map answer = await dbConnect(query);
-  print("answer: ");
-  print(answer);
+    if (await result.isEmpty){
+      // continue
+    } else {
+      answer['answer'] = "no";
+      answer['info'] = "Uzivatel s tvojim menom uz je zaregistrovany. Zvol ine meno a skus znova.";
+      res.write(JSON.encode(answer));
+      res.close();
+    }
 
-  Map object = new Map();
-  if (answer.length == 0){
-    object['answer'] = "yes";
-    query = "INSERT INTO User (name, pasw) VALUES ('"+jsonData['name']+"', '"+jsonData['passw']+"')";
-    print(query);
-    answer = await dbConnect(query);
-    print("answer: ");
-    print(answer);
+    query = await pool.prepare('INSERT INTO User (name, pasw) VALUES (?, ?)');
+    result = await query.execute(['${jsonData['name']}', '${jsonData['passw']}']);
 
-  } else {
-    object['answer'] = "no";
-    object['info'] = "Uzivatel s tvojim menom uz je zaregistrovany. Zvol ine meno a skus znova.";
+    answer['answer'] = "yes";
+    answer['info'] = "Registracia prebehla uspesne.";
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  res.write(JSON.encode(object));
+  res.write(JSON.encode(answer));
   res.close();
 }
 
 Future changePassw(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, String> answer = new Map();
 
-  String query = "UPDATE User SET pasw='"+jsonData['passw']+"' WHERE name='"+jsonData['name']+"'";
+  try{
+  var query = await pool.prepare('UPDATE User SET pasw=? WHERE name=?');
+  var result = await query.execute(['${jsonData['passw']}', '${jsonData['name']}']);
 
-  print(query);
-  Map answer = await dbConnect(query);
-  print("answer: ");
-  print(answer);
-
-  // TODO zistit ci boli nejake riadky zmenene, teraz vyhlasi OK vzdy
-  Map object = new Map();
-  if (answer.length == 0){
-    object['answer'] = "yes";
-
-  } else {
-    object['answer'] = "no";
-    object['info'] = "Nieco sa bohuzial pokazilo.";
+  answer['answer'] = "yes";
+  answer['info'] = "Heslo bolo uspesne zmenene";
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  res.write(JSON.encode(object));
+  res.write(JSON.encode(answer));
   res.close();
 }
 
 Future getMyLanguages(HttpRequest req, Map jsonData) async {
-  print("called 'getMyLanguages'");
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, Map<String, String>> answer = new Map();
 
-  String query = 'SELECT * FROM Says WHERE userId="'+jsonData['userId'].toString()+'"';
+  try{
+    var query = await pool.prepare('SELECT id, name, short, userId '+
+        'FROM Language LEFT OUTER JOIN '+
+        '(SELECT * FROM Says WHERE userId=?) AS subquery '+
+        'ON Language.id=subquery.languageId '+
+        'GROUP BY id, name, short');
+    var result = await query.execute([jsonData['userId']]);
 
-  print("query is :");
-
-  print(query);
-  Map answer = await dbConnect(query);
-  print("answer of My Languages: ");
-  print(answer);
-
-  query = 'SELECT * FROM Language';
-
-  print("query is :");
-  print(query);
-  Map answer2 = await dbConnect(query);
-  print("answer of all Languages: ");
-  print(answer2);
-
-  for (var line in answer.keys){
-    int languageId = answer[line]["col1"];
-    for(var l in answer2.keys){
-      if(languageId == answer2[l]["col0"]){
-        answer2[l]["checked"] = true;
+    int index = 0;
+    await result.forEach((row){
+      Map r = new Map(); // TODO col"cislo" asi neni uplne ok
+      for (int i = 0; i < row.length - 1; i++){
+        r['col${i}'] = row[i];
       }
-    }
+
+      if (row.userId == jsonData['userId']){
+        r['checked'] = true;
+      }
+
+      answer['${index}'] = r;
+      index++;
+    });
+  } catch (e){
+    print(e);
+    answer['answer']['answer'] = "no";
+    answer['answer']['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  print(answer2);
-  res.write(JSON.encode(answer2));
+  res.write(JSON.encode(answer));
   res.close();
 }
 
 Future changeLanguages(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, String> answer = new Map();
 
-  Map myData = jsonData["checkedList"];
-  int id = jsonData["userId"];
+  try{
+    Map<String, bool> myData = jsonData["checkedList"];
+    int id = jsonData["userId"];
 
-  StringBuffer insertQuery = new StringBuffer("INSERT INTO Says VALUES ");
-  StringBuffer deleteQuery = new StringBuffer("DELETE FROM Says WHERE ");
-  int toInsert = 0, toDelete = 0;
+    List<List<int>> insertValues = new List(), deleteValues = new List();
+    int toInsert = 0, toDelete = 0;
 
-  for (var item in myData.keys){
-    print(item);
-    if (myData[item] == true){
-      if (toInsert != 0){
-        insertQuery.write(",");
+    var insertQuery = await pool.prepare("INSERT INTO Says VALUES (?, ?)");
+    var deleteQuery = await pool.prepare("DELETE FROM Says WHERE (userId=? AND languageId=?)");
+
+    for (var item in myData.keys){
+      if (myData[item] == true){
+        toInsert++;
+        insertValues.add([id, item]);
+      } else {
+        toDelete++;
+        deleteValues.add([id, item]);
       }
-      toInsert++;
-      insertQuery.write("(${id},${item})");
-    } else {
-      if (toDelete != 0){
-        deleteQuery.write(" OR ");
-      }
-      toDelete++;
-      deleteQuery.write("(userId='${id}' AND languageId='${item}')");
     }
+
+    if (toInsert == 1){
+      await insertQuery.execute(insertValues[0]);
+    } else if (toInsert > 0) {
+      await insertQuery.executeMulti(insertValues);
+    }
+
+    if (toDelete == 1){
+      await deleteQuery.execute(deleteValues[0]);
+    } else if (toDelete > 0) {
+      await deleteQuery.executeMulti(deleteValues);
+    }
+
+    answer['answer'] = "yes";
+    answer['info'] = "Zmena prebehla uspesne";
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  Map answer = null, answer2 = null;
-  // TODO neviem ako zistit ci bol dotaz do DB uspesny alebo nie - snad nejaky try-catch blok?
-  Map object = new Map();
-
-  if (toInsert > 0){
-    print(insertQuery.toString());
-    answer = await dbConnect(insertQuery.toString());
-  }
-
-  if (toDelete > 0){
-    print(deleteQuery.toString());
-    answer2 = await dbConnect(deleteQuery.toString());
-  }
-
-  if ((answer2==null || answer2.length == 0) && (answer==null || answer.length == 0)){
-    object['answer'] = "yes";
-  } else {
-    object['answer'] = "no";
-  }
-
-  res.write(JSON.encode(object));
+  res.write(JSON.encode(answer));
   res.close();
 }
 
 //SELECT Film.name AS film, Titles.id AS titlesId, Titles.languageId AS languageId FROM Film,Titles WHERE Film.id=Titles.filmId;
+// TODO
 Future createOffer(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
@@ -290,9 +320,6 @@ Future createOffer(HttpRequest req, Map jsonData) async {
   String query = "SELECT Film.name AS film, Titles.languageId AS languageId, Titles.id AS titlesId FROM Film,Titles WHERE Film.id=Titles.filmId ORDER BY Film.name, Titles.languageId, Titles.id DESC";
 
   print(query);
-  Map answer = await dbConnect(query);
-  print("answer: ");
-  print(answer);
 
   Map object = new Map();
   String filmName = "";
@@ -345,83 +372,194 @@ dva stlpce - id slova a text slova, zoradene podla poctu vyskytov
 - mozno treba pridat ku kazdemu slovu v db ze v akom filme je
  */
 
-Future showMe(HttpRequest req, Map jsonData) async {
+Future showMeTable(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  Map<String, Map> answer = new Map();
 
-  // co ak sa chcem ucit aj ked nie som prihlasena?
-  String query = "SELECT Word.id, Word.text "+
-      "FROM Contains, Word "+
-      "WHERE Contains.wordId=Word.id AND Word.languageId="+jsonData['titles1'].toString()+
-      " AND NOT EXISTS (SELECT * FROM Knows WHERE Knows.userId="+jsonData['userId'].toString()+
-      " AND Knows.wordId=Word.id)"+
-      " GROUP BY Word.id, Word.text"+
-      " ORDER BY COUNT(Contains.sentenceId) DESC"+
-      " LIMIT 30";
-  print(query);
-  Map answer = await dbConnect(query);
-  print("answer: ");
-  print(answer);
+  try {
+    print("checkpoint no.1");
 
-  Map object = new Map();
+    // co ak sa chcem ucit aj ked nie som prihlasena?
+    var query = await pool.prepare("SELECT Word.id, Word.text "+
+        "FROM Contains, Word "+
+        "WHERE Contains.wordId=Word.id AND Word.languageId=?"+
+        " AND NOT EXISTS (SELECT * FROM Knows WHERE Knows.userId=?"+
+        " AND Knows.wordId=Word.id)"+
+        " GROUP BY Word.id, Word.text"+
+        " ORDER BY COUNT(Contains.sentenceId) DESC"+
+        " LIMIT ?");
+    print(pool);
+    // TODO skontroluj nezrovnalosti medzi titles a language
+    var result = await query.execute([jsonData['titles1'], jsonData['userId'], jsonData['limit']]);
 
-  for (var line in answer.keys){
-    int wordId = answer[line]["col0"];
-    int wordText = answer[line]["col1"];
+    await result.forEach( (row){
+      int wordId = row.id;
+      String wordText = row.text;
+      answer['${wordId}'] = new Map();
+      answer['${wordId}']['text'] = wordText;
 
-    object['${wordId}'] = new Map();
-    int i = 0;
-    object['${wordId}']['${i++}'] = wordText;
+    });
 
-    String q2 = "SELECT sentenceId FROM Contains WHERE wordId="+wordId.toString();
-    Map answ2 = await dbConnect(q2);
+    print("checkpoint no.2");
 
-    for(var l in answ2.keys){
-      object['${wordId}']['${i++}']=answ2[l]["col0"];
+    for (String key in answer.keys){
+      query = await pool.prepare("SELECT sentenceId FROM Contains WHERE wordId=? ORDER BY sentenceId");
+      result = await query.execute([key]);
+
+      int i = 0;
+      await result.forEach( (row){
+        answer[key]['${i++}'] = row.sentenceId;
+      });
+      answer[key]['sum'] = i;
+
+      //print(answer[key]);
+
+      query = await pool.prepare('SELECT text FROM Sentence WHERE id=?');
+      result = await query.execute([answer[key]['0']]);
+
+      StringBuffer sb = new StringBuffer();
+      await result.forEach( (row){
+        sb.writeln(row.text);
+      });
+
+      answer[key]['sentence'] = sb.toString();
+
     }
+
+    print("checkpoint no.3");
+    answer['answer'] = new Map();
+    answer['answer']['answer'] = "yes";
+    print (answer);
+  } catch (e){
+    print(e);
+    answer['answer'] = new Map();
+    answer['answer']['answer'] = "no";
+    answer['answer']['info'] = "An exception occured: ${e}";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  // KONIEC SPRACOVANIA ANSWER, zahrnut niekde, ci mam pridat aj "prekladove" titulky
-
-  res.write(JSON.encode(object));
+  print(answer);
+  res.write(JSON.encode(answer));
   res.close();
 }
 
 Future getTextOfSentence(HttpRequest req, Map jsonData) async {
   HttpResponse res = req.response;
   addCorsHeaders(res);
+  //Map<String, String> answer = new Map();
+  Map answer = new Map();
 
-  String query = "SELECT text FROM Sentence WHERE id="+jsonData['id'].toString();
-  print(query);
-  Map answer = await dbConnect(query);
-  print("answer: ");
-  print(answer);
+  try{
+    var query = await pool.prepare('SELECT text, poradove_cislo FROM Sentence WHERE id=? ORDER BY Sentence.id ASC');
+    var result = await query.execute([jsonData['id']]);
 
-  Map object = new Map();
-  object['answer'] = '"'+answer['0']["col0"].toString()+'"';
-  print("object['answer']= ${object['answer']}");
+    StringBuffer sb = new StringBuffer();
+    await result.forEach( (row){
+      sb.writeln(row.text);
+      answer.putIfAbsent('poradove_cislo', () => row.poradove_cislo);
+    });
+    answer['answer'] = sb.toString();
 
-  if (jsonData.containsKey('secondLanguage')){
-    int titlesId = jsonData['secondLanguage'];
+    if (jsonData.containsKey('secondLanguage')){
+      int languageId = jsonData['secondLanguage'];
+      // TODO domysliet ten druhy jazyk - co ak ich tam bude viac moznosti?
+      query = await pool.prepare("SELECT Sentence.text, Sentence.poradove_cislo "+
+          "FROM Pair, Sentence "+
+          "WHERE (((Pair.sentence2=Sentence.id AND Pair.sentence1=?) "+
+          "OR (Pair.sentence1=Sentence.id AND Pair.sentence2=?)))");
+      result = await query.execute([jsonData['id'], jsonData['id']]);
 
-    //       SELECT Sentence.text FROM Pair, Sentence WHERE (((Pair.sentence2=Sentence.id AND Pair.sentence1=762) OR (Pair.sentence1=Sentence.id AND Pair.sentence2=762)) AND (Sentence.titlesId=1));
-    query = "SELECT Sentence.text FROM Pair, Sentence WHERE (((Pair.sentence2=Sentence.id AND Pair.sentence1="
-        +jsonData['id'].toString()
-        +") OR (Pair.sentence1=Sentence.id AND Pair.sentence2="+jsonData['id'].toString()+")))";
-        //+")) AND (Sentence.titlesId="+jsonData['secondLanguage'].toString()+"))";
-    print(query);
-    Map answer = await dbConnect(query);
-    print("answer: ");
+      sb.clear();
+      await result.forEach( (row){
+        sb.writeln(row.text);
+        answer.putIfAbsent('pc2', () => row.poradove_cislo);
+      });
+      answer['second'] = sb.toString();
+    }
+
     print(answer);
-    object['second'] = '"'+answer['0']["col0"].toString()+'"';
-
-    //object['second'] = "prelozena veta";
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
   }
 
-  print(object);
+  res.write(JSON.encode(answer));
+  res.close();
+}
 
-  res.write(JSON.encode(object));
-  print("close");
+Future setAsKnown (HttpRequest req, Map jsonData) async{
+  HttpResponse res = req.response;
+  addCorsHeaders(res);
+  Map<String, String> answer = new Map();
+
+  try{
+    int userId = jsonData['userId'];
+    String word = jsonData['word'];
+
+    var query = await pool.prepare('SELECT id FROM Word WHERE text=?');
+    var result = await query.execute(['${word}']);
+
+    List<List<int>> insertValues = new List();
+    await result.forEach( (row){
+      List<int> oneInsert = new List();
+      oneInsert.add(userId);
+      oneInsert.add(row.id);
+      insertValues.add(oneInsert);
+    });
+
+    print("word '${word}' has these indeces: ${insertValues.toString()}");
+
+    query = await pool.prepare('INSERT INTO Knows (userId, wordId) VALUES (?, ?)');
+    result = await query.executeMulti(insertValues);
+
+    print("executedMulti");
+
+    answer['answer'] = "yes";
+    answer['info'] = "user no. ${userId} knows new word ${word}";
+    print(answer);
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
+  }
+
+  res.write(JSON.encode(answer));
+  res.close();
+}
+
+Future getSentence(HttpRequest req, Map jsonData) async {
+  HttpResponse res = req.response;
+  addCorsHeaders(res);
+  Map<String, String> answer = new Map();
+
+  try{
+    var query = await pool.prepare('SELECT text FROM Sentence WHERE titlesId=? AND poradove_cislo=?');
+    var result = await query.execute([jsonData['titlesId'], jsonData['poradove_cislo']]);
+
+    StringBuffer sb = new StringBuffer();
+    await result.forEach( (row){
+      sb.writeln(row.text);
+    });
+    answer['sentence'] = sb.toString();
+    answer['answer'] = "yes";
+
+    print(answer);
+  } catch (e){
+    print(e);
+    answer['answer'] = "no";
+    answer['info'] = "Nepodarilo sa pripojiť do databázy.";
+    await pool.closeConnectionsNow();
+    myPool = null;
+  }
+
+  res.write(JSON.encode(answer));
   res.close();
 }
 
@@ -434,69 +572,6 @@ void defaultHandler(HttpRequest req) {
 }
 
 void printError(error) => print(error);
-
-
-Future dbConnect(String query) async {
-  Map data = new Map();
-  print('called dbConnect');
-  var pool = new ConnectionPool(
-      host: 'localhost',
-      port: 3306,
-      user: "root",
-      password: null,
-      db: 'project',
-      max: 5);
-  print('connection created');
-  var results = await pool.query(query);
-  int index = 0;
-  print('gonna create data from db result');
-  await results.forEach( (row){
-    Map r = new Map();
-    for (int i = 0; i < row.length; i++){
-      r['col${i}'] = row[i];
-    }
-
-    data.putIfAbsent('${index}', () => r);
-    index++;
-  });
-  return data;
-}
-
-Future something(HttpRequest req, Map jsonData) async {
-  HttpResponse res = req.response;
-  addCorsHeaders(res);
-
-  var pool = new ConnectionPool(
-      host: 'localhost',
-      port: 3306,
-      user: "root",
-      password: null,
-      db: 'project',
-      max: 5);
-  print('connection created');
-
-  var query = await pool.prepare('SELECT * from User WHERE name=?');
-  var result = await query.execute(['meno']);
-
-  print(query.toString());
-
-  Map answer = new Map();
-  int index = 0;
-  await result.forEach( (row){
-    Map r = new Map();
-    for (int i = 0; i < row.length; i++){
-      r['col${i}'] = row[i];
-      print(row[i]);
-    }
-    answer.putIfAbsent('${index}', () => r);
-    index++;
-  });
-
-  print(answer);
-
-  res.write(JSON.encode(answer));
-  res.close();
-}
 
 /*
  * Encode/Decode functions for Dart

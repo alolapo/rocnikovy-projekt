@@ -3,8 +3,11 @@ var user, userId;
 var filmId = 1;
 var filmName = "Dirty dancing";
 var titles1 = 3; // anglicky
+var titles1id = 2;
 var titles2 = 2; // cesky
+var titles2id = 1;
 //var titles2 = null;
+var currentlyDisplayed = null;
 
 console.log("prilinkovany");
 //createOffer();
@@ -221,7 +224,8 @@ var filmName = "Dirty dancing";
 var titles1 = 2; // anglicky
 var titles2 = 1; // cesky
 */
-	var objekt = {'type':'showMe', 'filmId':filmId, 'titles1':titles1, 'titles2':titles2, 'userId':userId};
+	var objekt = {'type':'showMeTable', 'filmId':filmId, 
+  'titles1':titles1, 'userId':userId, 'limit':15};
 
 	xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
@@ -232,8 +236,11 @@ var titles2 = 1; // cesky
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
+      // alert - ze sa spracuvava poziadavka
+      currentlyDisplayed = json;
       fillTableFromJson(json);
+      document.getElementById('filmName').innerHTML = filmName;
+      document.getElementById('tabulkaSlovicok').style.display = "inline";
       
     }
   }
@@ -249,41 +256,95 @@ function fillTableFromJson(json){
 	// TODO vymaz vsetky deti, spracuj zaznacene zmeny	
 	table.innerHTML = "";
 
+  if ( json["answer"]!= null && json["answer"]['answer'] == "no"){
+    console.log("nepodarilo sa nacitat");
+    return;
+  }
+
   var key, tr, td;
   for (key in json){
-  	console.log(key);
+  	//console.log(key);
+    if (key =='answer'){
+      continue;
+    }
+
   	tr = document.createElement('tr');
 
   	td = document.createElement('td');
-  	td.innerHTML = json[key]['0'];
+  	td.innerHTML = json[key]['text'];
   	tr.appendChild(td);
 
   	//vybrat si nahodne ktory vyskyt chcem
-  	var word=json[key]['0'];
-  	var sentenceId = json[key]['1'];
-  	td = document.createElement('td');
-  	td.setAttribute('id', word); 
-  	//getTextOfSentence(sentenceId, word);
+    // <a id="myLink" title="Click to do something" href="#" onclick="MyFunction();return false;">link text</a>
+  	var word=json[key]['text'];
+  	var sentenceId = json[key]['0'];
+    currentlyDisplayed[key]['actual'] = 0;
+    td = document.createElement('td');
+  	
+    var link = document.createElement('a');
+    link.setAttribute('sentenceId', sentenceId);
+    link.setAttribute('id', pack(word));
+    link.setAttribute('title', 'Click to see in separate place');
+    link.setAttribute('href', '#');
+    link.setAttribute('onclick', 'getTextOfSentence('+sentenceId+', \''+pack(word)+'\');return false;');
+    link.innerHTML = json[key]['sentence'];
+    td.appendChild(link);
   	tr.appendChild(td);
 
   	td = document.createElement('td');
   	td.innerHTML = "dorob checklist";
-  	td.innerHTML = '<button type="button" onclick="getTextOfSentence('+sentenceId+', \''+word+'\')">daj mi vetu</button>';
+  	td.innerHTML = '<button type="button" class="btn btn-default" onclick="setAsKnown(\''+pack(word)+'\')">už poznám</button>';
   	tr.appendChild(td);
 
   	table.appendChild(tr);
   }
+  console.log(currentlyDisplayed);
+}
+
+function setAsKnown(word){
+  word = unpack(word);
+  var objekt = {'type':'setAsKnown', 'userId':userId, 'word':word};
+  
+  xhr = new XMLHttpRequest();
+  var url = "http://localhost:4049";
+  var method = "POST";
+  xhr.open(method, url, true);
+  xhr.onreadystatechange = function () { 
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      var json = JSON.parse(xhr.responseText);
+      //console.log(json);
+      
+      // TODO spracuj json
+      if (json["answer"] == "yes"){
+        var link = document.getElementById(pack(word));
+        var tr = link.parentElement.parentElement;
+        var table = document.getElementById("wordsTable");
+        console.log(tr);
+        console.log(table);
+        table.removeChild(tr);
+      } else {
+        console.log("nieco sa pokazilo pri zaznaceni slovicka 'uz viem'");
+      }
+    }
+  }
+
+  var data = JSON.stringify(objekt);
+  xhr.send(data);
 
 }
 
 function getTextOfSentence(id, word){
-	var objekt = {'type':'getTextOfSentence', 'id':id, 'secondLanguage': titles2};
+  word = unpack(word);
+	var objekt = {'type':'getTextOfSentence', 'id':id};
+
   if (titles2 != null){
     objekt['secondLanguage'] = titles2;
     document.getElementById('secondLanguage').style.display = "inline";
   } else {
     document.getElementById('secondLanguage').style.display = "none";
   }
+
+  console.log(objekt);
 
 	xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
@@ -295,12 +356,37 @@ function getTextOfSentence(id, word){
       //console.log(json);
       
       // TODO spracuj json
-      var td = document.getElementById(word);
+      var td = document.getElementById(pack(word));
       td.innerHTML = json['answer'];
-      document.getElementById('displayWord').innerHTML = word;
-      document.getElementById('newLanguageSentence').innerHTML = json['answer'];
+
+      var manipulatorDiv = document.getElementById('displayWord');
+      manipulatorDiv.innerHTML="";
+
+      var slovo = document.createElement('h3');
+      slovo.innerHTML = word;
+      manipulatorDiv.appendChild(slovo);
+      
+      var buttonPoznam = document.createElement('button');
+      buttonPoznam.setAttribute('onclick', 'setAsKnown(\''+pack(word)+'\')');
+      buttonPoznam.innerHTML = "už poznám";
+      buttonPoznam.setAttribute('type', 'button');
+      buttonPoznam.setAttribute('class', 'btn btn-default');
+      manipulatorDiv.appendChild(buttonPoznam);
+
+      var buttonInyVyskyt = document.createElement('button');
+      buttonInyVyskyt.setAttribute('onclick', 'nextSentence(\''+pack(word)+'\')');
+      buttonInyVyskyt.innerHTML = "ďalší výskyt";
+      buttonInyVyskyt.setAttribute('type', 'button');
+      buttonInyVyskyt.setAttribute('class', 'btn btn-default');
+      manipulatorDiv.appendChild(buttonInyVyskyt);
+
+      var el = document.getElementById('newLanguageSentence');
+      el.innerHTML = json['answer'];
+      el.setAttribute('poradove_cislo', json['poradove_cislo']);
       if ( titles2 != null ){
-        document.getElementById('knownLanguageSentence').innerHTML = json['second'];
+        el = document.getElementById('knownLanguageSentence');
+        el.innerHTML = json['second'];
+        el.setAttribute('poradove_cislo', json['pc2']);
       }
       
     }
@@ -308,13 +394,41 @@ function getTextOfSentence(id, word){
 
   var data = JSON.stringify(objekt);
   xhr.send(data);
-  
-  //var td = document.getElementById(word);
-  //td.innerHTML = "nieco";
 }
 
-function giveMeSomething(){
-  var objekt = {'type':"something"};
+function nextSentence(word){
+  word = unpack(word);
+  // TODO - niekedy sa este zasekne
+  var key = null;
+  for (var k in currentlyDisplayed){
+    if (currentlyDisplayed[k]['text'] == word){
+      key = k;
+      break;
+    }
+  }
+
+  console.log("key - teda id slova je "+key);
+
+  if (key == null){
+    return false;
+  }
+
+  var index = currentlyDisplayed[key]['actual'];
+  console.log("prave zobrazena je "+index+". veta");
+  index++;
+  if (index == currentlyDisplayed[key]['sum'])
+    index = 0;//znamena to ze je posledny vyskyt
+  var id = currentlyDisplayed[key][index];
+
+  getTextOfSentence(id, word);
+
+  currentlyDisplayed[key]['actual']++;
+}
+
+function getSentence(poradove_cislo, titlesId, elementId){
+  var objekt = {'type':'getSentence', 'poradove_cislo':poradove_cislo, 'titlesId':titlesId};
+  console.log("get sentence "+poradove_cislo);
+
   xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
   var method = "POST";
@@ -324,9 +438,17 @@ function giveMeSomething(){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
-      var td = document.getElementById("someAnswer");
-      td.innerHTML = json['0']['col0']+" "+json['0']['col1']+" "+json['0']['col2'];
+      var answer = json["answer"];
+      console.log(json);
+      if (answer == "yes"){
+        console.log(json['sentence']);
+        document.getElementById(elementId).innerHTML = json['sentence'];
+        return json['sentence'];
+      } else {
+        console.log("nenasiel taku vetu");
+        return "NIEKDE NASTAL PROBLEM";
+      }
+
     }
   }
 
@@ -334,24 +456,81 @@ function giveMeSomething(){
   xhr.send(data);
 }
 
+function prevSentenceOriginal(){
+  var element = document.getElementById('newLanguageSentence');
+  var sentenceId = element.getAttribute('sentenceId');
+  var pc = element.getAttribute('poradove_cislo');
+  if (pc < 1){
+    return;
+  }
+  if(pc == 1){
+    element.setAttribute('poradove_cislo', 0);
+    element.innerHTML = "...zaciatok filmu...";
+    return;
+  }
+  pc = parseInt(pc) - 1;
+  element.setAttribute('poradove_cislo', pc);
+  getSentence(pc, titles1id, "newLanguageSentence");
+}
+
+function nextSentenceOriginal(){
+  var element = document.getElementById('newLanguageSentence');
+  var sentenceId = element.getAttribute('sentenceId');
+  var pc = element.getAttribute('poradove_cislo');
+  pc = 1 + parseInt(pc);
+  element.setAttribute('poradove_cislo', pc);
+  getSentence(pc, titles1id, "newLanguageSentence");
+}
+
+function prevSentenceTranslate(){
+  var element = document.getElementById('knownLanguageSentence');
+  var sentenceId = element.getAttribute('sentenceId');
+  var pc = element.getAttribute('poradove_cislo');
+  if (pc < 1){
+    return;
+  }
+  if(pc == 1){
+    element.setAttribute('poradove_cislo', 0);
+    element.innerHTML = "...zaciatok filmu...";
+    return;
+  }
+  pc = parseInt(pc) - 1;
+  element.setAttribute('poradove_cislo', pc);
+  getSentence(pc, titles2id, 'knownLanguageSentence');
+}
+
+function nextSentenceTranslate(){
+  var element = document.getElementById('knownLanguageSentence');
+  var sentenceId = element.getAttribute('sentenceId');
+  var pc = element.getAttribute('poradove_cislo');
+  pc = 1 + parseInt(pc);
+  element.setAttribute('poradove_cislo', pc);
+  getSentence(pc, titles2id, 'knownLanguageSentence');
+}
+
 function showLogged(){
-	// TODO skry polia login, registracia
-	document.getElementById("login").style.display = "none";
-	document.getElementById("register").style.display = "none";
-	// ukaz tie "osobne"
+	// skry polia login, registracia
+	document.getElementById("login/register").style.display = "none";
+  document.getElementById("uvod").style.display = "none";
+  // ukaz tie "osobne"
 	document.getElementById("logout").style.display = "inline";
 	document.getElementById("loggedAs").innerHTML = user;
 	createLanguagesForm();
 	document.getElementById("konto").style.display = "inline";
+  document.getElementById("chcemSaUcit").style.display = "inline";
+  document.getElementById("navod").style.display = "inline";
 }
 
 function showUnlogged(){
-	// TODO skry tie osobne
+	// skry tie osobne
 	document.getElementById("logout").style.display = "none";
 	document.getElementById("konto").style.display = "none";
-	// ukaz prihlas, registruj
-	document.getElementById("login").style.display = "inline";
-	document.getElementById("register").style.display = "inline";
+  document.getElementById('tabulkaSlovicok').style.display = "none";
+  document.getElementById("chcemSaUcit").style.display = "none";
+  document.getElementById("navod").style.display = "none";
+  // ukaz prihlas, registruj
+	document.getElementById("login/register").style.display = "inline";
+  document.getElementById("uvod").style.display = "inline";
 }
 
 function createLanguagesForm(){
@@ -400,4 +579,14 @@ function createLanguagesForm(){
   var data = JSON.stringify(objekt);
   xhr.send(data);
 
+}
+
+function pack(word){
+  word = word.replace("'", "_");
+  return word;
+}
+
+function unpack(word){
+  word = word.replace("_", "'");
+  return word;  
 }

@@ -32,13 +32,13 @@ header {
 	position: fixed;
 	color: #993300;
 	transform: rotate(-90deg);
-	left: 10px;
+	left: 5px;
 	top: 100px;
 }
 
 .shadowbox {
 	padding:25px;
-	margin: 25px 0; /*toto robi skaredy zaciatok a koniec*/
+	margin: 25px 0;
 	
 	border-width: 0 10px 10px 0;
 	border-style: solid;
@@ -104,6 +104,12 @@ table {
 	width: 100%;
 }
 
-#logout, #konto, #noveTitulky, #sparujTitulky {
+#logout {
+	position: absolute;
+	top: -25px;
+	right: 150px;
+}
+
+#logout, #konto, #noveTitulky, #sparujTitulky, #tabulkaSlovicok, nav, #chcemSaUcit, #navod {
 	display: none;
 }
