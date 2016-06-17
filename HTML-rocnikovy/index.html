@@ -9,7 +9,7 @@
 <link href="styly.css" rel="stylesheet">
 </head>
 
-<body>
+<body id="body_element">
 
 <script type="text/javascript" src="funkcie.js"></script>
 
@@ -33,7 +33,7 @@
 		<h3>Malý návod</h3><br>
 			<p>
 			Vitajte v Titulkárni. V sekcii "Chcem sa učiť" kliknite na tlačidlo "Zobraziť", 
-			ktoré vám ukáže niekoľko slov, ktoré možno ešte nepoznáte a nachádzajú sa v danom filme. Ak dané slovo poznáte, stlačte príslušné tlačidlo "už poznám", ktoré vám toto slovíčko pretane zobrazovať. Opakované stlačenie tlačidla "Zobraziť" nanovo zobrazí top 15 slovíčok, ktoré sa vám oplatí v danom filme poznať.<br>
+			ktoré vám ukáže niekoľko slov, ktoré možno ešte nepoznáte a nachádzajú sa v danom filme. Ak dané slovo poznáte, stlačte príslušné tlačidlo "už poznám", ktoré vám toto slovíčko prestane zobrazovať. Opakované stlačenie tlačidla "Zobraziť" nanovo zobrazí top 15 slovíčok, ktoré sa vám oplatí v danom filme poznať.<br>
 			Ak neviete, čo veta prislúchajúca slovu znamená, kliknite na ňu a v pravej časti obrazovky sa vám ukáže aj s prekladom. Ak chcete vedieť širší kontext, v ktorom sa slovo nachádza, posúvajte sa šípkami "&lt;&lt;" a "&gt;&gt;" v deji dozadu alebo dopredu. Ak chcete vidieť slovo v inom kontexte, vypýtajte si novú vetu stlačením tlačidla "ďalší výskyt".
 			</p>
 		</div>
@@ -157,20 +157,18 @@
 
 	<div class="zobrazSlovo">
 		<div id="displayWord">		
-			<h3>Slovo3</h3>
-			<button>už poznám</button>
-			<button>iný výskyt</button>
+			<h3>Ktoré slovo nepoznáš?</h3>
 		</div>
 		<div>
 			<button type="button" class="btn btn-default" onclick="prevSentenceOriginal()">&lt;&lt;</button>
 			<button type="button" class="btn btn-default" onclick="nextSentenceOriginal()">&gt;&gt;</button>
-			<br>
+			<br><br>
 			<p id="newLanguageSentence">výskyt slova 3 vo vete v cudzom jazyku ktorý ešte nepoznám</p>
 		</div>
 		<div id="secondLanguage">
 			<button type="button" class="btn btn-default" onclick="prevSentenceTranslate()">&lt;&lt;</button>
 			<button type="button" class="btn btn-default" onclick="nextSentenceTranslate()">&gt;&gt;</button>
-			<br>
+			<br><br>
 			<p id="knownLanguageSentence">výskyt slova 3 v pomocnej vete, ktorá tu môže a nemusí byť</p>
 		</div>
 	</div>

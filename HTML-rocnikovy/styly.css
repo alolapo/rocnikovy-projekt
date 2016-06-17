@@ -83,7 +83,7 @@ h2 {
 }
 
 .zobrazSlovo div h3 {
-	float: left;
+	/*float: left;*/
 }
 .zobrazSlovo div button {
 	float: left;

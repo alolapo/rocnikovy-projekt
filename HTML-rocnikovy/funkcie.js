@@ -15,11 +15,7 @@ console.log("prilinkovany");
 function createOffer(){
 	// zisti, ktore kombinacie mas k dispozicii
 	var div = document.getElementById("offer");
-	
 	var objekt = {'type':'createOffer'};
-
-	// sprav dotaz na server, ci existuje takyto uzivatel
-	// ak ano, vypytaj si potrebne veci
 
   xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
@@ -44,9 +40,6 @@ function login(){
 	var passw = document.getElementById('passw').value;
 	var objekt = {'type':'login', 'name':name, 'passw':passw};
 
-	// sprav dotaz na server, ci existuje takyto uzivatel
-	// ak ano, vypytaj si potrebne veci
-
   xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
   var method = "POST";
@@ -56,9 +49,7 @@ function login(){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
       var answer = json["answer"];
-      //console.log(answer);
       if (answer == "yes"){
       	console.log("spravne meno a heslo");
       	// "prihlasit" ma s tymto menom
@@ -67,10 +58,21 @@ function login(){
       	// zmenit zobrazenie stranok, ktore ma a ktore nema vidiet
       	showLogged();
       } else {
-      	// TODO vypis, ze sa nepodarilo prihlasit
       	console.log("nespravne meno alebo heslo");
-      }
 
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('login/register'));
+      }
     }
   }
 
@@ -82,9 +84,21 @@ function register(){
 	var name = document.getElementById('regName').value;
 	var passw = document.getElementById('regPassw').value;
 	var passw2 = document.getElementById('regPassw2').value;
-	if (passw != passw2) {
-		// TODO vypis ze heslo je nespravne
-		console.log("hesla sa nezhoduju");
+	
+  if (passw != passw2) {
+		  var alert = document.createElement('div');
+      alert.setAttribute('class', 'alert alert-warning');
+      var close = document.createElement('a');
+      close.setAttribute('class', 'close');
+      close.setAttribute('data-dismiss', 'alert');
+      close.setAttribute('aria-label', 'close');
+      close.innerHTML = "&times;";
+      alert.appendChild(close);
+      alert.innerHTML = alert.innerHTML + "<strong>Warning!</strong> Heslá sa nezhodujú.";
+      
+      var body = document.getElementById('body_element');
+      body.insertBefore(alert, document.getElementById('login/register'));
+      console.log("hesla sa nezhoduju");
 		return;
 	}
 	
@@ -100,9 +114,7 @@ function register(){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
       var answer = json["answer"];
-      //console.log(answer);
       if (answer == "yes"){
       	console.log("registracia prebehla uspesne");
       	// ked sa odhlasim, budem mat vyplnene vlastne meno a heslo
@@ -115,13 +127,24 @@ function register(){
 				// "prihlasit" ma s tymto menom
       	login();
       } else {
-      	// TODO vypis, ze sa nepodarilo prihlasit
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('login/register'));
+
       	console.log("registracia sa nepdarila");
       	if (json["info"] != null){
       		console.log(json["info"]);
       	}
       }
-
     }
   }
 
@@ -129,7 +152,6 @@ function register(){
   xhr.send(data);
 
 }
-
 
 function logout(){
 	showUnlogged();
@@ -139,9 +161,20 @@ function logout(){
 function changePassw(){
 	var passw = document.getElementById('chgPassw').value;
 	var passw2 = document.getElementById('chgPassw2').value;
-	if (passw != passw2) {
-		// TODO vypis ze heslo je nespravne
-		console.log("hesla sa nezhoduju");
+	
+  if (passw != passw2) {
+		  var alert = document.createElement('div');
+      alert.setAttribute('class', 'alert alert-warning');
+      var close = document.createElement('a');
+      close.setAttribute('class', 'close');
+      close.setAttribute('data-dismiss', 'alert');
+      close.setAttribute('aria-label', 'close');
+      close.innerHTML = "&times;";
+      alert.appendChild(close);
+      alert.innerHTML = alert.innerHTML + "<strong>Warning!</strong> Heslá sa nezhodujú.";
+      
+      var body = document.getElementById('body_element');
+      body.insertBefore(alert, document.getElementById('konto'));console.log("hesla sa nezhoduju");
 		return;
 	}
 	
@@ -156,14 +189,35 @@ function changePassw(){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
       var answer = json["answer"];
-      //console.log(answer);
       if (answer == "yes"){
-      	// TODO vypis ze sa podarilo prihlasit
+      	var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-success');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Success!</strong> Heslo bolo úspešne zmenené.";
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('konto'));
+
       	console.log("heslo bolo uspesne zmenene");
       } else {
-      	// TODO vypis, ze sa nepodarilo prihlasit
+      	var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('konto'));
       	console.log("niekde nastal problem");
       	if (json["info"] != null){
       		console.log(json["info"]);
@@ -179,13 +233,14 @@ function changePassw(){
 function changeLanguages(){
 	var objekt = {'type':'changeLanguages', 'userId':userId};
 	var list = document.getElementsByClassName("checkboxListLanguages");
-	var checkedList = {};
+	
+  var checkedList = {};
 	for (var x = 0; x < list.length; x++){
 		checkedList[list[x].getAttribute("languageId")] = list[x].checked;
 	}
-	objekt["checkedList"] = checkedList;
-	//console.log(objekt);
 
+	objekt["checkedList"] = checkedList;
+	
 	xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
   var method = "POST";
@@ -195,15 +250,38 @@ function changeLanguages(){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
 
-			// TODO spracuj json
-      var answer = json["answer"];
-      //console.log(answer);
+	    var answer = json["answer"];
       if (answer == "yes"){
-      	// TODO vypis ze sa podarilo prihlasit
+      	
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-success');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Success!</strong> Jazyky sa podarilo zmeniť.";
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('konto'));
+
       	console.log("jazyky boli uspesne zmenene");
       } else {
-      	// TODO vypis, ze sa nepodarilo prihlasit
-      	console.log("niekde nastal problem");
+      	var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('konto'));
+
+        console.log("niekde nastal problem");
       	if (json["info"] != null){
       		console.log(json["info"]);
       	}
@@ -215,17 +293,23 @@ function changeLanguages(){
   xhr.send(data);
 }
 
+// obrazi top 15 najcastejsich slov z danych tituliek ktore este nepoznam
 function showMe(){
-	// TODO zobrazi top 15 najcastejsich slov z danych tituliek ktore este nepoznam
-/*
-var user, userId;
-filmId = 1;
-var filmName = "Dirty dancing";
-var titles1 = 2; // anglicky
-var titles2 = 1; // cesky
-*/
 	var objekt = {'type':'showMeTable', 'filmId':filmId, 
   'titles1':titles1, 'userId':userId, 'limit':15};
+
+  var alert = document.createElement('div');
+  alert.setAttribute('class', 'alert alert-info');
+  var close = document.createElement('a');
+  close.setAttribute('class', 'close');
+  close.setAttribute('data-dismiss', 'alert');
+  close.setAttribute('aria-label', 'close');
+  close.innerHTML = "&times;";
+  alert.appendChild(close);
+  alert.innerHTML = alert.innerHTML + "<strong>Info!</strong> Vaša požiadavka sa spracuváva.";
+  
+  var body = document.getElementById('body_element');
+  body.insertBefore(alert, document.getElementById('tabulkaSlovicok'));
 
 	xhr = new XMLHttpRequest();
   var url = "http://localhost:4049";
@@ -236,12 +320,31 @@ var titles2 = 1; // cesky
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // alert - ze sa spracuvava poziadavka
+      if ( json["answer"]!= null && json["answer"]['answer'] == "no"){
+        
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('tabulkaSlovicok'));
+        console.log("niekde nastal problem");
+        if (json["info"] != null){
+          console.log(json['answer']["info"]);
+        }
+        return;
+      }
+
       currentlyDisplayed = json;
       fillTableFromJson(json);
       document.getElementById('filmName').innerHTML = filmName;
       document.getElementById('tabulkaSlovicok').style.display = "inline";
-      
     }
   }
 
@@ -253,17 +356,10 @@ var titles2 = 1; // cesky
 function fillTableFromJson(json){
 	var table = document.getElementById("wordsTable");
 
-	// TODO vymaz vsetky deti, spracuj zaznacene zmeny	
 	table.innerHTML = "";
-
-  if ( json["answer"]!= null && json["answer"]['answer'] == "no"){
-    console.log("nepodarilo sa nacitat");
-    return;
-  }
 
   var key, tr, td;
   for (key in json){
-  	//console.log(key);
     if (key =='answer'){
       continue;
     }
@@ -274,8 +370,6 @@ function fillTableFromJson(json){
   	td.innerHTML = json[key]['text'];
   	tr.appendChild(td);
 
-  	//vybrat si nahodne ktory vyskyt chcem
-    // <a id="myLink" title="Click to do something" href="#" onclick="MyFunction();return false;">link text</a>
   	var word=json[key]['text'];
   	var sentenceId = json[key]['0'];
     currentlyDisplayed[key]['actual'] = 0;
@@ -298,7 +392,6 @@ function fillTableFromJson(json){
 
   	table.appendChild(tr);
   }
-  console.log(currentlyDisplayed);
 }
 
 function setAsKnown(word){
@@ -314,7 +407,6 @@ function setAsKnown(word){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
       if (json["answer"] == "yes"){
         var link = document.getElementById(pack(word));
         var tr = link.parentElement.parentElement;
@@ -323,6 +415,19 @@ function setAsKnown(word){
         console.log(table);
         table.removeChild(tr);
       } else {
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('tabulkaSlovicok'));
+
         console.log("nieco sa pokazilo pri zaznaceni slovicka 'uz viem'");
       }
     }
@@ -355,17 +460,33 @@ function getTextOfSentence(id, word){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
       
-      // TODO spracuj json
+      if (json['answer'] == "no"){
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('tabulkaSlovicok'));
+        
+        console.log("nieco sa pokazilo");
+        if (json["info"] != null){
+          console.log(json['answer']["info"]);
+        }
+        return;
+      }
+
       var td = document.getElementById(pack(word));
       td.innerHTML = json['answer'];
 
       var manipulatorDiv = document.getElementById('displayWord');
       manipulatorDiv.innerHTML="";
 
-      var slovo = document.createElement('h3');
-      slovo.innerHTML = word;
-      manipulatorDiv.appendChild(slovo);
-      
       var buttonPoznam = document.createElement('button');
       buttonPoznam.setAttribute('onclick', 'setAsKnown(\''+pack(word)+'\')');
       buttonPoznam.innerHTML = "už poznám";
@@ -380,15 +501,23 @@ function getTextOfSentence(id, word){
       buttonInyVyskyt.setAttribute('class', 'btn btn-default');
       manipulatorDiv.appendChild(buttonInyVyskyt);
 
+      manipulatorDiv.appendChild(document.createElement('br'));
+      var slovo = document.createElement('h3');
+      slovo.innerHTML = word;
+      manipulatorDiv.appendChild(slovo);
+      
       var el = document.getElementById('newLanguageSentence');
       el.innerHTML = json['answer'];
       el.setAttribute('poradove_cislo', json['poradove_cislo']);
-      if ( titles2 != null ){
-        el = document.getElementById('knownLanguageSentence');
+
+      el = document.getElementById('knownLanguageSentence');
+      if ( titles2 != null && json['pc2'] != ""){
+        el.style.display = "inline";
         el.innerHTML = json['second'];
         el.setAttribute('poradove_cislo', json['pc2']);
+      } else {
+        el.style.display = "none";
       }
-      
     }
   }
 
@@ -398,7 +527,7 @@ function getTextOfSentence(id, word){
 
 function nextSentence(word){
   word = unpack(word);
-  // TODO - niekedy sa este zasekne
+  
   var key = null;
   for (var k in currentlyDisplayed){
     if (currentlyDisplayed[k]['text'] == word){
@@ -406,8 +535,6 @@ function nextSentence(word){
       break;
     }
   }
-
-  console.log("key - teda id slova je "+key);
 
   if (key == null){
     return false;
@@ -439,16 +566,25 @@ function getSentence(poradove_cislo, titlesId, elementId){
       //console.log(json);
       
       var answer = json["answer"];
-      console.log(json);
       if (answer == "yes"){
         console.log(json['sentence']);
         document.getElementById(elementId).innerHTML = json['sentence'];
-        return json['sentence'];
       } else {
-        console.log("nenasiel taku vetu");
-        return "NIEKDE NASTAL PROBLEM";
-      }
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('tabulkaSlovicok'));
 
+        console.log("nenasiel taku vetu");
+      }
     }
   }
 
@@ -552,12 +688,31 @@ function createLanguagesForm(){
       var json = JSON.parse(xhr.responseText);
       //console.log(json);
 
+      if ( json["answer"]!= null && json["answer"]['answer'] == "no"){
+        var alert = document.createElement('div');
+        alert.setAttribute('class', 'alert alert-danger');
+        var close = document.createElement('a');
+        close.setAttribute('class', 'close');
+        close.setAttribute('data-dismiss', 'alert');
+        close.setAttribute('aria-label', 'close');
+        close.innerHTML = "&times;";
+        alert.appendChild(close);
+        alert.innerHTML = alert.innerHTML + "<strong>Danger!</strong> "+json['info'];
+        
+        var body = document.getElementById('body_element');
+        body.insertBefore(alert, document.getElementById('konto'));
+        console.log("niekde nastal problem");
+        if (json["info"] != null){
+          console.log(json['answer']["info"]);
+        }
+        return;
+      }
+
 	    for (line in json){
 		    if (!json.hasOwnProperty(line)){
 		      continue;
 		    }
-		    //console.log(line, json[line]);
-
+		    
 		    label = document.createElement('label');
 		    input = document.createElement('input');
 		    input.type = "checkbox";

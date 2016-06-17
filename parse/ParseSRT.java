@@ -9,14 +9,17 @@ class ParseSRT implements ParseStrategy {
 	public List<Sentence> parseFile(String fileName) {
 		List<Sentence> sentences = new ArrayList<>();
 		BufferedReader in = null;
+		//InputStreamReader in = null;
 
 		try {
-			in = new BufferedReader(new FileReader("subs/" + fileName));
+			//in = new BufferedReader(new FileReader("subs/" + fileName));
+			in = new BufferedReader( new InputStreamReader(new FileInputStream("subs/" + fileName), "windows-1250"));
 
 			while (true) {
 				String line;
 				// nacitame riadok do retazca, malo by to byt cislo repliky
 				line = in.readLine();
+				
 				// skoncime, ked uzivatel zada prazdny riadok alebo ked prideme
 				// na koniec vstupu (null)
 				if (line == null || line.equals("")) {
@@ -32,6 +35,7 @@ class ParseSRT implements ParseStrategy {
 				StringBuffer text = new StringBuffer("");
 				while (true) {
 					line = in.readLine();
+					//System.out.println(line);
 					// skoncime, ked sa objavi prazdny riadok alebo ked prideme
 					// na koniec vstupu (null)
 					if (line.equals("") && text.length() == 0) {

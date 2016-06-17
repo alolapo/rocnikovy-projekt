@@ -1,5 +1,6 @@
 package parse;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class Main {
@@ -8,6 +9,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		System.out.println(Charset.defaultCharset());
+		
 		// TODO cases
 		// titulky budu nacitane z db, zatial natvrdo vytvorene
 		Titles t1 = new Titles();
@@ -22,18 +25,17 @@ public class Main {
 
 		MySQLsaver saver = new MySQLsaver();
 		saver.createConnection();
+		
 		// teraz natvrdo SRT, casom akysi case
 		ParseStrategy parse = new ParseSRT();
 
 		t1.sentences = parse.parseFile(t1.fileName);
-		// System.out.println(t1.sentences.get(8).toString());
 		int offset1 = saver.saveSentences(t1.sentences, t1.titlesId);
 		// ak je offset -1, neulozilo sa to spravne
 		System.out.println(offset1);
 		saver.saveWords(t1.sentences, offset1, t1.language);
 
 		t2.sentences = parse.parseFile(t2.fileName);
-		// System.out.println(t2.sentences.get(6).toString());
 		int offset2 = saver.saveSentences(t2.sentences, t2.titlesId);
 		// ak je offset -1, neulozilo sa to spravne
 		System.out.println(offset2);
@@ -47,28 +49,8 @@ public class Main {
 		saver.saveCombined(t1.titlesId, t2.titlesId);
 		
 		System.out.println();
-		System.out.println(t1.sentences.get(tuples.get(40).sentence1).text);
-		System.out.println(t2.sentences.get(tuples.get(40).sentence2).text);
 		
-
-		/*
-		 * tu treba ulozit vsetky info do db: titulky → t1, t2 Replika →
-		 * t1.repliky, t2.repliky Dvojica → tuples Slovo - replika ...toto este
-		 * nikde nemam spracovane
-		 */
-
-		saver.closeConnection();
-		
-		/*
-		System.out.println(saver.simplify("ahoj"));
-		System.out.println(saver.simplify("Bábovka"));
-		System.out.println(saver.simplify("prečo?"));
-		System.out.println(saver.simplify("!"));
-		System.out.println(saver.simplify("."));
-		System.out.println(saver.simplify("?"));
-		System.out.println(saver.simplify("\'"));
-		System.out.println("A = "+'A'+"\nZ = "+ 'Z'+"\na = "+'a'+"\nz = "+'z');
-		*/
+		saver.closeConnection();	
 	}
 
 }
